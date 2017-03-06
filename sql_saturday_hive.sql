@@ -126,4 +126,17 @@ SELECT SEASON, WSCORE, LSCORE, WLOC, (WSCORE-LSCORE) AS SCORE_DIFF, CONCAT(WTEAM
     LIMIT 15;
 
 
+--###############################################################################################################
+--#
+--#   Create Hive (External) Table on top of HBase
+--#
+--###############################################################################################################
+
+CREATE EXTERNAL TABLE hive_on_hbase_table
+    (key string, value string,value1 string) 
+    STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' 
+    WITH SERDEPROPERTIES ("hbase.columns.mapping" = ":key,cf:foo,cf:message") 
+    TBLPROPERTIES ("hbase.table.name" = "mytable");
+
+
 --#ZEND
