@@ -64,7 +64,7 @@ mm_join1.createOrReplaceTempView('mm_join1_sql')
 # Calculate the Top 15 Teams with the most Wins
 spark.sql('''  
     SELECT WTEAM_NAME, COUNT(*) AS WINS 
-        FROM mm_join1 
+        FROM mm_join1_sql 
         GROUP BY WTEAM_NAME 
         ORDER BY WINS DESC
     ''').show(15)
@@ -73,7 +73,7 @@ spark.sql('''
 # Calculate the Top 15 Teams with the most Losses
 spark.sql('''  
     SELECT LTEAM_NAME, COUNT(*) AS LOSSES 
-        FROM mm_join1 
+        FROM mm_join1_sql 
         GROUP BY LTEAM_NAME 
         ORDER BY LOSSES DESC 
     ''').show(15)
@@ -82,7 +82,7 @@ spark.sql('''
 # Calculate the Top 15 Matchups with the biggest score difference
 spark.sql('''  
     SELECT SEASON, WSCORE, LSCORE, WLOC, (WSCORE-LSCORE) AS SCORE_DIFF, WTEAM_NAME, LTEAM_NAME
-        FROM mm_join1
+        FROM mm_join1_sql
         ORDER BY SCORE_DIFF DESC
     ''').show(15,False)
 
