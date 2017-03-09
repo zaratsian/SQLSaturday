@@ -77,6 +77,14 @@ CREATE TABLE IF NOT EXISTS testdata_orc
 
 INSERT OVERWRITE TABLE testdata_orc SELECT * FROM testdata;
 
+SELECT COUNT(*) FROM testdata;
+SELECT COUNT(*) FROM testdata_orc;
+
+ANALYZE TABLE testdata COMPUTE STATISTICS;
+ANALYZE TABLE testdata COMPUTE STATISTICS FOR COLUMNS;
+
+SELECT COUNT(*) FROM testdata;
+
 
 --###############################################################################################################
 --#
