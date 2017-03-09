@@ -153,11 +153,38 @@ SELECT SEASON, WSCORE, LSCORE, WLOC, (WSCORE-LSCORE) AS SCORE_DIFF, CONCAT(WTEAM
 --#
 --###############################################################################################################
 
-CREATE EXTERNAL TABLE hive_on_hbase_table
-    (key string, value string,value1 string) 
+--HBase Structure:
+--create 'hbase_2_hive_names', 'id', 'name', 'age'
+--
+--hbase(main):077:0* scan 'hbase_2_hive_names'
+--ROW                                   COLUMN+CELL                                                                                                
+-- 1                                    column=age:, timestamp=1488904037329, value=21                                                             
+-- 1                                    column=id:, timestamp=1488903781591, value=1001                                                            
+-- 1                                    column=name:first, timestamp=1488904009113, value=justin                                                   
+-- 1                                    column=name:last, timestamp=1488904017187, value=jackson                                                   
+-- 2                                    column=age:, timestamp=1488904273594, value=19                                                             
+-- 2                                    column=id:, timestamp=1488903787396, value=1002                                                            
+-- 2                                    column=name:first, timestamp=1488904278454, value=dennis                                                   
+-- 2                                    column=name:last, timestamp=1488904448083, value=smith                                                     
+-- 3                                    column=age:, timestamp=1488904480128, value=20                                                             
+-- 3                                    column=id:, timestamp=1488903791025, value=1003                                                            
+-- 3                                    column=name:first, timestamp=1488904471799, value=frank                                                    
+-- 3                                    column=name:last, timestamp=1488904455194, value=jackson                                                  
+
+
+drop table hive_on_hbase_table;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS hive_on_hbase_table (
+    hbid INT,
+    id STRING,  
+    firstname STRING, 
+    lastname STRING, 
+    age STRING) 
     STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' 
-    WITH SERDEPROPERTIES ("hbase.columns.mapping" = ":key,cf:foo,cf:message") 
-    TBLPROPERTIES ("hbase.table.name" = "mytable");
+    WITH SERDEPROPERTIES ("hbase.columns.mapping" = ":key,id:id#b,name:first#s,name:last#s,age:age#b","hbase.table.default.storage.type" = "string") 
+    TBLPROPERTIES("hbase.table.name" = "hbase_2_hive_names");
+
+select * from hive_on_hbase_table limit 10
 
 
 --#ZEND
