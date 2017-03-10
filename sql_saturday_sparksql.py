@@ -5,7 +5,8 @@
 #
 ###############################################################################################################
 
-mm_season = spark.read.load("hdfs://sandbox.hortonworks.com:8020/tmp/marchmadness/SeasonResults/SeasonResults.csv", format="csv", header=True)
+#mm_season = spark.read.load("hdfs://sandbox.hortonworks.com:8020/demo/ncaa/SeasonResults/SeasonResults.csv", format="csv", header=True)
+mm_season = spark.read.load("/SeasonResults.csv", format="csv", header=True)
 
 mm_season.show()
 mm_season.count()
@@ -20,7 +21,8 @@ spark.sql('''
 
 ###############################################################################################################
 
-mm_teams = spark.read.load("hdfs://sandbox.hortonworks.com:8020/tmp/marchmadness/Teams/Teams.csv", format="csv", header=True)
+#mm_teams = spark.read.load("hdfs://sandbox.hortonworks.com:8020/demo/ncaa/Teams/Teams.csv", format="csv", header=True)
+mm_teams = spark.read.load("/Teams.csv", format="csv", header=True)
 
 mm_teams.show()
 mm_teams.count()
@@ -123,30 +125,21 @@ hive_context.sql("select * from sample_temp").show()
 /usr/hdp/2.5.0.0-1245/spark2/bin/pyspark --jars /usr/hdp/2.5.0.0-1245/phoenix/phoenix-4.7.0.2.5.0.0-1245-client.jar,/usr/hdp/2.5.0.0-1245/phoenix/lib/phoenix-spark-4.7.0.2.5.0.0-1245.jar --conf "spark.executor.extraClassPath=/usr/hdp/2.5.0.0-1245/phoenix/phoenix-4.7.0.2.5.0.0-1245-client.jar,/usr/hdp/2.5.0.0-1245/phoenix/lib/phoenix-spark-4.7.0.2.5.0.0-1245.jar"
 
 # Read from Phoenix:
-phoenixdata = spark.read                                                \
-  .format("org.apache.phoenix.spark")                                   \
-  .option("table", "AIRLINE_REVIEWS")                                   \
-  .option("zkUrl", "sandbox.hortonworks.com:2181/hbase-unsecure")       \
+phoenixdata = spark.read                                            \
+  .format("org.apache.phoenix.spark")                               \
+  .option("table", "AIRLINE_REVIEWS")                               \
+  .option("zkUrl", "sandbox.hortonworks.com:2181/hbase-unsecure")   \
   .load()
 
 
-
-/usr/hdp/2.5.0.0-1245/spark2/bin/pyspark --driver-class-path /usr/hdp/current/phoenix-client/phoenix-4.7.0.2.5.0.0-1245-client.jar  --jars /usr/hdp/current/phoenix-client/phoenix-4.7.0.2.5.0.0-1245-client.jar
-
-phoenixdata = spark.read \
-    .format("jdbc") \
-    .option("url", "jdbc:phoenix:sandbox.hortonworks.com:2181:/hbase") \
-    .option("dbtable", "AIRLINE_REVIEWS") \
-    .load()
-
-
-
-
-df = spark.read.format("org.apache.phoenix.spark").option("zkUrl", "phoenix.dev:2181/hbase").option("table", "mytable").load()
-
-
-
 # Write to Phoenix:
+df.write                                                            \
+  .format("org.apache.phoenix.spark")                               \
+  .mode("overwrite")                                                \
+  .option("table", "TABLE1")                                        \
+  .option("zkUrl", "sandbox.hortonworks.com:2181/hbase-unsecure")   \
+  .save()
+
 
 
 #ZEND
