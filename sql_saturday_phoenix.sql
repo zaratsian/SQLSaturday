@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS mm_season
 HADOOP_CLASSPATH=/usr/hdp/2.5.0.0-1245/hbase/lib/hbase-protocol.jar:/usr/hdp/2.5.0.0-1245/hbase/conf                            \
 hadoop jar /usr/hdp/2.5.0.0-1245/phoenix/phoenix-4.7.0.2.5.0.0-1245-client.jar org.apache.phoenix.mapreduce.CsvBulkLoadTool     \
 --table mm_season --d "," --ignore-errors                                                                                       \
---input /tmp/marchmadness/SeasonResults/SeasonResults.csv
+--input /demo/ncaa/SeasonResults/SeasonResults.csv
 
 SELECT * FROM MM_SEASON LIMIT 10;
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS mm_teams
 HADOOP_CLASSPATH=/usr/hdp/2.5.0.0-1245/hbase/lib/hbase-protocol.jar:/usr/hdp/2.5.0.0-1245/hbase/conf                            \
 hadoop jar /usr/hdp/2.5.0.0-1245/phoenix/phoenix-4.7.0.2.5.0.0-1245-client.jar org.apache.phoenix.mapreduce.CsvBulkLoadTool     \
 --table mm_teams --d "," --ignore-errors                                                                                        \
---input /tmp/marchmadness/Teams/Teams.csv
+--input /demo/ncaa/Teams/Teams.csv
 
 SELECT * FROM mm_teams LIMIT 10;
 
