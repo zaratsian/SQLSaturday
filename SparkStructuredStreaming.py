@@ -81,9 +81,12 @@ query = wordCounts\
 query2 = wordCounts\
     .writeStream\
     .format("memory")\
-    .queryName("counts")\
+    .queryName("aggregates")\
     .outputMode("complete")\
     .start()
+
+
+spark.sql("select * from aggregates order by desc count").show() 
 
 
 
