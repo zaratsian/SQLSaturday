@@ -147,7 +147,7 @@ query2 = teamCount\
 #######################################################################################
 
 # spark.sql("select * from aggregates order by count desc").show() 
-spark.sql("select * from aggregates order by 'avg(score_diff)' desc").show() 
+spark.sql("select * from aggregates order by `avg(score_diff)` desc").show() 
 
 
 
