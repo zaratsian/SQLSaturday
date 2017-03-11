@@ -1,8 +1,7 @@
 
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import explode
-from pyspark.sql.functions import split
+from pyspark.sql.functions import explode, split, col
 
 
 ############################################################################################################
@@ -23,6 +22,12 @@ from pyspark.sql.functions import split
 ############################################################################################################
 
 
+#######################################################################################
+#
+#   Initialize Streaming Data Feed
+#
+#######################################################################################
+
 '''
 # Create DataFrame representing the stream of input lines from connection to localhost:9999
 events = spark\
@@ -42,43 +47,92 @@ events = spark\
   .option("subscribe", "dztopic1")\
   .load()
 
-#events.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
 
+#######################################################################################
+#
+#   Data Processing / Transformation on Streaming DF
+#
+#######################################################################################
+
+#events.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
 
 #events = spark.createDataFrame([('100001|1985|20|1228|81|1328|64|N|0',),('100002|1985|25|1106|77|1354|70|H|0',)],['value'])
 events2 = events.withColumn('uid', split(events['value'],'\\|')[0] )    \
         .withColumn('season', split(events['value'],'\\|')[1] )         \
         .withColumn('daynum', split(events['value'],'\\|')[2] )         \
-        .withColumn('wteam', split(events['value'],'\\|')[3] )        \
+        .withColumn('wteam', split(events['value'],'\\|')[3] )          \
         .withColumn('wscore', split(events['value'],'\\|')[4] )         \
         .withColumn('lteam', split(events['value'],'\\|')[5] )          \
         .withColumn('lscore', split(events['value'],'\\|')[6] )         \
         .withColumn('wloc', split(events['value'],'\\|')[7] )           \
-        .withColumn('ot', split(events['value'],'\\|')[8] )
+        .withColumn('ot', split(events['value'],'\\|')[8] )             \
+        .withColumn('score_diff', col('wscore') - col('lscore') )
 
 
-# Load Static DF
+
+#######################################################################################
+#
+#   Load Static DF
+#
+#######################################################################################
+
 staticDf = spark.read.load("/Teams.csv", format="csv", header=True)
 
 
-# Left Join (Streaming DF with Static DF)
-dfjoin  = events2.join(staticDf, events2.wteam==staticDf.Team_Id, "left")
+
+#######################################################################################
+#
+#   Join Streaming DF with Static DF
+#
+#######################################################################################
+
+dfjoin  = events2.join(staticDf, events2.wteam==staticDf.Team_Id, "left")   \
+                .drop("Team_Id")                                            \
+                .withColumnRenamed("Team_Name", "WTeam_Name")
+
+dfjoin2 = dfjoin.join(staticDf,  dfjoin.lteam==staticDf.Team_Id, "left")    \
+                .drop("Team_Id")                                            \
+                .withColumnRenamed("Team_Name", "LTeam_Name")
 
 
-# Generate running word count
-wordCounts = dfjoin.groupBy('Team_Name').count()
 
+#######################################################################################
+#
+#   Aggregations
+#
+#######################################################################################
+
+# Aggregate by Winning Team
+#teamCount = dfjoin2.groupBy('WTeam_Name','LTeam_Name')
+
+# Aggregate by WTeam and LTeam, filtered for NC State, UNC, and Duke
+teamCount = dfjoin2.where(                                                      \
+    dfjoin2["WTeam_Name"].isin({"NC State", "North Carolina", "Duke"}) |        \
+    dfjoin2["LTeam_Name"].isin({"NC State", "North Carolina", "Duke"}))         \
+    .groupBy('WTeam_Name','LTeam_Name')                                         \
+    .agg({"score_diff":"mean"})
+
+
+
+
+#######################################################################################
+#
+#   Issue Structured Streaming Query
+#
+#######################################################################################
 
 # Start Query (to console)
-query = wordCounts\
+'''
+query = teamCount\
     .writeStream\
     .outputMode('complete')\
     .format('console')\
     .start()
+'''
 
 
 # Start Query (to in-memory table)
-query2 = wordCounts\
+query2 = teamCount\
     .writeStream\
     .format("memory")\
     .queryName("aggregates")\
@@ -86,9 +140,23 @@ query2 = wordCounts\
     .start()
 
 
-spark.sql("select * from aggregates order by desc count").show() 
+#######################################################################################
+#
+#   Issue Query against In-Memory / Realtime Streaming Table
+#
+#######################################################################################
+
+# spark.sql("select * from aggregates order by count desc").show() 
+spark.sql("select * from aggregates order by 'avg(score_diff)' desc").show() 
 
 
+
+
+#######################################################################################
+#
+#   Stop Structured Streaming Query
+#
+#######################################################################################
 
 #query.awaitTermination()
 #query.stop()
