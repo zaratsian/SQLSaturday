@@ -14,7 +14,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS mm_season_temp
     LINES TERMINATED BY "\n"
     STORED AS TEXTFILE
     LOCATION "/demo/ncaa/SeasonResults"
-    TBLPROPERTIES ("skip.header.line.count=1");
+    TBLPROPERTIES ("skip.header.line.count"="1");
 
 CREATE TABLE IF NOT EXISTS mm_season
     (id string, season string, day string, wteam string, wscore int, lteam string, lscore int, wloc string, ot string)
@@ -40,7 +40,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS mm_teams_temp
     LINES TERMINATED BY "\n"
     STORED AS TEXTFILE
     LOCATION "/demo/ncaa/Teams"
-    TBLPROPERTIES ("skip.header.line.count=1");
+    TBLPROPERTIES ("skip.header.line.count"="1");
 
 CREATE TABLE IF NOT EXISTS mm_teams
     (team_id string, team_name string)
@@ -184,7 +184,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS testdata
     LINES TERMINATED BY "\n"
     STORED AS TEXTFILE
     LOCATION "/demo/ncaa/testdata"
-    TBLPROPERTIES ("skip.header.line.count=1");
+    TBLPROPERTIES ("skip.header.line.count"="1");
 
 CREATE TABLE IF NOT EXISTS testdata_orc
     (id string, ssn string, amount int, password string, cc string, dob string, datestr string, cei string, name string, email string)
